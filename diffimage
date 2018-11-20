@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+
+const compareImages = require("resemblejs/compareImages");
+const path = require('path');
+const fs = require("mz/fs");
+const {
+    exec
+} = require('child_process');
+const args = process.argv.slice(2);
+
+let orgImagePath = args[0] ? path.resolve(args[0]) : '';
+let otherImagePath = args[1] ? path.resolve(args[1]) : '';
+
+
+if (!orgImagePath || !fs.existsSync(orgImagePath)) {
+    console.error('Original file is not found');
+
+    return;
+}
+
+
+if (!otherImagePath || !fs.existsSync(otherImagePath)) {
+    console.error('Other file is not found');
+
+    return;
+}
+
+
+console.log('Original file: ', orgImagePath);
+console.log('Other file: ', otherImagePath);
+
+function randomString() {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+async function getDiff(orgImagePath, otherImagePath) {
+    const options = {
+        output: {
+            errorColor: {
+                red: 255,
+                green: 0,
+                blue: 255
+            },
+            errorType: "movement",
+            transparency: 0.7,
+            largeImageThreshold: 1200,
+            useCrossOrigin: false,
+            outputDiff: true
+        },
+        scaleToSameSize: true,
+        ignore: "colors"
+    };
+
+    // The parameters can be Node Buffers
+    // data is the same as usual with an additional getBuffer() function
+    const data = await compareImages(
+        await fs.readFile(orgImagePath),
+        await fs.readFile(otherImagePath),
+        options
+    );
+
+    const outputPath = '/tmp/diffimage__' + randomString() + '.png';
+
+    console.log('Diff result: ', outputPath);
+
+    await fs.writeFile(outputPath, data.getBuffer());
+
+    exec(`open -a Preview "${outputPath}"`)
+}
+
+getDiff(orgImagePath, otherImagePath);

@@ -1,0 +1,15 @@
+{
+  "name": "diffimage",
+  "version": "1.0.0",
+  "description": "Diff image",
+  "main": "diffimage.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MaDnh",
+  "license": "ISC",
+  "dependencies": {
+    "mz": "^2.7.0",
+    "resemblejs": "^2.10.3"
+  }
+}
